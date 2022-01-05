@@ -23,7 +23,7 @@ resource "aws_route_table" "private_routes" {
 
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = element(aws_nat_gateway.nat_gws.*.id, count.index)
+    gateway_id = element(aws_nat_gateway.nat_gateways.*.id, count.index)
   }
 
   tags = merge(

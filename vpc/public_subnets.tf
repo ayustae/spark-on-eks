@@ -19,7 +19,7 @@ resource "aws_subnet" "public_subnets" {
 # Reserve IP addresses for the NAT Gateways
 resource "aws_eip" "nat_ips" {
   count = var.selected_azs
-  vpc   = aws_vpc.spark_vpc.id
+  vpc   = true
 
   tags = merge(
     {

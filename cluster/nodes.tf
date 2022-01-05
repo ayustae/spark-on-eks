@@ -21,14 +21,8 @@ resource "aws_iam_role_policy_attachment" "managed_ecr_readonly_policy_to_node_p
   role       = aws_iam_role.node_pool_role.name
 }
 
-# Create an instance profile from the appropiate role
-resource "aws_iam_instance_profile" "node_pool_instance_profile" {
-  name = "node_pool_instance_profile"
-  role = aws_iam_role.node_pool_role.name
-}
-
 # Get the RHEL 8 AMI information
-data "aws_amis" "rhel8" {
+data "aws_ami" "rhel8" {
   most_recent = true
   owners      = ["309956199498"]
 
@@ -53,25 +47,24 @@ resource "aws_launch_template" "spark_k8s_cluster_node_group_launch_template" {
   name                   = "spark_k8s_cluster_launch_template"
   description            = "Launch tempalte for the spark_k8s_cluster EKS cluster."
   ebs_optimized          = true
-  image_id               = data.aws_amis.rhel8.id
+  image_id               = data.aws_ami.rhel8.id
   instance_type          = var.instance_type
   vpc_security_group_ids = [aws_security_group.eks_nodes_sg.id]
   user_data              = base64encode(file("${path.module}/scripts/init_script.sh"))
 
-  tag_specifications = merge(
-    {
-      Cluster           = "spark_k8s_cluster"
-      "Node Group"      = "spark_k8s_cluster_node_group"
-      "Launch Template" = "spark_k8s_cluster_launch_template"
-    },
-    var.global_tags
-  )
-
-  iam_instance_profile {
-    name = aws_iam_instance_profile.node_pool_instance_profile
+  tag_specifications {
+    resource_type = "instance"
+    tags = merge(
+      {
+        Cluster           = "spark_k8s_cluster"
+        "Node Group"      = "spark_k8s_cluster_node_group"
+        "Launch Template" = "spark_k8s_cluster_launch_template"
+      },
+      var.global_tags
+    )
   }
 
-  tag = merge(
+  tags = merge(
     {
       Name         = "Spark Kubernetes Cluster Launch Template"
       Cluster      = "spark_k8s_cluster"
@@ -86,10 +79,11 @@ resource "aws_eks_node_group" "eks_node_group" {
   cluster_name    = aws_eks_cluster.k8s_cluster.name
   node_group_name = "spark_k8s_cluster_node_group"
   node_role_arn   = aws_iam_role.node_pool_role.arn
-  subnet_ids      = var.private_subnet_ids
+  subnet_ids      = var.private_subnets_ids
 
   launch_template {
-    id = aws_launch_template.spark_k8s_cluster_node_group_launch_template.id
+    id      = aws_launch_template.spark_k8s_cluster_node_group_launch_template.id
+    version = "$Latest"
   }
 
   scaling_config {

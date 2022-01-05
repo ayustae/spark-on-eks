@@ -1,4 +1,4 @@
-variables "global_tags" {
+variable "global_tags" {
   description = "Tags to be assigned to all resources."
   type        = map(string)
 }
