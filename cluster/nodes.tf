@@ -21,14 +21,14 @@ resource "aws_iam_role_policy_attachment" "managed_ecr_readonly_policy_to_node_p
   role       = aws_iam_role.node_pool_role.name
 }
 
-# Get the RHEL 8 AMI information
-data "aws_ami" "rhel8" {
+# Get the EKS Optimized AMI
+data "aws_ami" "eks_ami" {
   most_recent = true
-  owners      = ["309956199498"]
+  owners      = ["amazon"]
 
   filter {
     name   = "name"
-    values = ["RHEL-8.*"]
+    values = ["amazon-eks*"]
   }
 
   filter {
@@ -42,15 +42,23 @@ data "aws_ami" "rhel8" {
   }
 }
 
+data "template_file" "eks_node_user_data" {
+  template = file("${path.module}/templates/init_script.sh.tpl")
+
+  vars = {
+    eks_cluster_name = aws_eks_cluster.k8s_cluster.name
+  }
+}
+
 # Worker nodes launch template
 resource "aws_launch_template" "spark_k8s_cluster_node_group_launch_template" {
-  name                   = "spark_k8s_cluster_launch_template"
+  name                   = "Spark on Kubernetes Launch Template"
   description            = "Launch tempalte for the spark_k8s_cluster EKS cluster."
   ebs_optimized          = true
-  image_id               = data.aws_ami.rhel8.id
+  image_id               = data.aws_ami.eks_ami.id
   instance_type          = var.instance_type
-  vpc_security_group_ids = [aws_security_group.eks_nodes_sg.id]
-  user_data              = base64encode(file("${path.module}/scripts/init_script.sh"))
+  vpc_security_group_ids = [aws_security_group.eks_nodes_sg.id,aws_eks_cluster.k8s_cluster.vpc_config[0].cluster_security_group_id]
+  user_data              = base64encode(data.template_file.eks_node_user_data.rendered)
 
   tag_specifications {
     resource_type = "instance"
@@ -69,6 +77,7 @@ resource "aws_launch_template" "spark_k8s_cluster_node_group_launch_template" {
       Name         = "Spark Kubernetes Cluster Launch Template"
       Cluster      = "spark_k8s_cluster"
       "Node Group" = "spark_k8s_cluster_node_group"
+      "kubernetes.io/cluster/${aws_eks_cluster.k8s_cluster.name}" = "shared"
     },
     var.global_tags
   )
@@ -80,10 +89,11 @@ resource "aws_eks_node_group" "eks_node_group" {
   node_group_name = "spark_k8s_cluster_node_group"
   node_role_arn   = aws_iam_role.node_pool_role.arn
   subnet_ids      = var.private_subnets_ids
+  #instance_types  = ["t3.medium"]
 
   launch_template {
     id      = aws_launch_template.spark_k8s_cluster_node_group_launch_template.id
-    version = "$Latest"
+    version = aws_launch_template.spark_k8s_cluster_node_group_launch_template.latest_version
   }
 
   scaling_config {
@@ -109,4 +119,8 @@ resource "aws_eks_node_group" "eks_node_group" {
     aws_iam_role_policy_attachment.managed_eks_cni_policy_to_node_pool_role_attachment,
     aws_iam_role_policy_attachment.managed_ecr_readonly_policy_to_node_pool_role_attachment
   ]
+
+ # lifecycle {
+ #   create_before_destroy = true
+ # }
 }

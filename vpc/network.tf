@@ -26,7 +26,8 @@ resource "aws_internet_gateway" "spark_igw" {
 
 # Get the available Availability Zones
 data "aws_availability_zones" "avail_azs" {
-  state = "available"
+  state         = "available"
+  exclude_names = ["us-east-1e"]
 }
 
 # Select some random availability zones
