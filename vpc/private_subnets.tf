@@ -42,3 +42,16 @@ resource "aws_route_table_association" "private_route_assoc" {
   route_table_id = element(aws_route_table.private_routes.*.id, count.index)
   subnet_id      = element(aws_subnet.private_subnets.*.id, count.index)
 }
+
+# Create a subnet group out of the private subnets
+resource "aws_db_subnet_group" "private_subnets_group" {
+  name       = "k8s-spark-private-subnets"
+  subnet_ids = [for subnet in aws_subnet.private_subnets : subnet.id]
+
+  tags = merge(
+    {
+      Name = "Spark on Kubernetes DB Subnet Group"
+    },
+    var.global_tags
+  )
+}

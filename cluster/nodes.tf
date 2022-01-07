@@ -52,7 +52,7 @@ data "template_file" "eks_node_user_data" {
 
 # Worker nodes launch template
 resource "aws_launch_template" "spark_k8s_cluster_node_group_launch_template" {
-  name                   = "Spark on Kubernetes Launch Template"
+  name                   = "k8s-spark-launch-template"
   description            = "Launch tempalte for the spark_k8s_cluster EKS cluster."
   ebs_optimized          = true
   image_id               = data.aws_ami.eks_ami.id
@@ -93,7 +93,7 @@ resource "aws_eks_node_group" "eks_node_group" {
 
   launch_template {
     id      = aws_launch_template.spark_k8s_cluster_node_group_launch_template.id
-    version = aws_launch_template.spark_k8s_cluster_node_group_launch_template.latest_version
+    version = "$Latest"
   }
 
   scaling_config {

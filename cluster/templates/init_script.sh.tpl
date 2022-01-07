@@ -1,10 +1,11 @@
 #!/bin/bash
 
-# Update the system
-yum update -y
-
 # Connect to the EKS cluster
-/etc/eks/bootstrap.sh i\
-    --container-runtaime containerd \
-    --aws-api-retry-attempts 5 \
+/etc/eks/bootstrap.sh \
+    --container-runtime containerd \
+    --aws-api-retry-attempts 1 \
     ${eks_cluster_name}
+
+# Update the system
+yum upgrade -y
+
