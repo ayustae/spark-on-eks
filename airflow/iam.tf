@@ -60,6 +60,4 @@ resource "aws_iam_role_policy_attachment" "airflow_secretsmanager_policy_role_at
   policy_arn = aws_iam_policy.airflow_secretsmanager_policy.arn
   role       = var.nodes_role_name
 }
-                                                                                                                                                                                                                            109,1       Final
-
 
