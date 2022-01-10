@@ -89,7 +89,7 @@ data "aws_iam_policy_document" "access_secrets_manager_document" {
 }
 
 resource "aws_iam_policy" "access_secrets_manager" {
-  name        = "k8s-spark_access-secret-manager"
+  name        = "AirflowAccessSecretsManager"
   description = "Allow the EKS Cluster access some secrets stored at Secret Manager."
   policy      = data.aws_iam_policy_document.access_secrets_manager_document.json
 

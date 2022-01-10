@@ -48,3 +48,10 @@ module "airflow" {
   db_username             = var.airflow_db_username
   db_password             = var.airflow_db_password
 }
+
+module "spark" {
+  source = "./spark/"
+  # Variables
+  nodes_role_name = module.cluster.nodes_role_name
+  global_tags     = var.tags
+}

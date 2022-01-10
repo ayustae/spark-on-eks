@@ -67,7 +67,7 @@ variable "airflow_db_size" {
 variable "airflow_db_instance_type" {
   description = "Instance type of the Airflow DB."
   type        = string
-  default     = "db.t3.medium"
+  default     = "db.t3.micro"
 }
 
 variable "airflow_db_username" {
