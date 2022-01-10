@@ -104,6 +104,6 @@ resource "aws_iam_policy" "access_secrets_manager" {
 # Attach the policy to the Airflow SA Role
 resource "aws_iam_role_policy_attachment" "access_secrets_manager_policy_role_attachment" {
   policy_arn = aws_iam_policy.access_secrets_manager.arn
-#  role       = aws_iam_role.airflow_sa_role.name
-  role       = var.nodes_role_name
+  #  role       = aws_iam_role.airflow_sa_role.name
+  role = var.nodes_role_name
 }
