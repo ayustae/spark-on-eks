@@ -57,3 +57,29 @@ variable "eks_node_group_instance_type" {
   type        = string
   default     = "t3.medium"
 }
+
+variable "airflow_db_size" {
+  description = "Size (in GiB) of the Airflow DB."
+  type        = string
+  default     = 30
+}
+
+variable "airflow_db_instance_type" {
+  description = "Instance type of the Airflow DB."
+  type        = string
+  default     = "db.t3.medium"
+}
+
+variable "airflow_db_username" {
+  description = "Airflow DB administrator username."
+  type        = string
+  default     = "airflow"
+  sensitive   = true
+}
+
+variable "airflow_db_password" {
+  description = "Airflow DB administrator password."
+  type        = string
+  default     = "Secret123!"
+  sensitive   = true
+}

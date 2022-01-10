@@ -8,9 +8,11 @@ resource "aws_subnet" "public_subnets" {
 
   tags = merge(
     {
-      Name  = "Spark Public Subnet #${count.index + 1}"
-      Scope = "Public"
-      AZ    = random_shuffle.azs.result[count.index]
+      Name                                      = "Spark Public Subnet #${count.index + 1}"
+      Scope                                     = "Public"
+      AZ                                        = random_shuffle.azs.result[count.index]
+      "kubernetes.io/cluster/spark_k8s_cluster" = "shared"
+      "kubernetes.io/role/elb"                  = 1
     },
     var.global_tags
   )

@@ -57,7 +57,7 @@ resource "aws_launch_template" "spark_k8s_cluster_node_group_launch_template" {
   ebs_optimized          = true
   image_id               = data.aws_ami.eks_ami.id
   instance_type          = var.instance_type
-  vpc_security_group_ids = [aws_security_group.eks_nodes_sg.id,aws_eks_cluster.k8s_cluster.vpc_config[0].cluster_security_group_id]
+  vpc_security_group_ids = [aws_security_group.eks_nodes_sg.id, aws_eks_cluster.k8s_cluster.vpc_config[0].cluster_security_group_id]
   user_data              = base64encode(data.template_file.eks_node_user_data.rendered)
 
   tag_specifications {
@@ -74,9 +74,9 @@ resource "aws_launch_template" "spark_k8s_cluster_node_group_launch_template" {
 
   tags = merge(
     {
-      Name         = "Spark Kubernetes Cluster Launch Template"
-      Cluster      = "spark_k8s_cluster"
-      "Node Group" = "spark_k8s_cluster_node_group"
+      Name                                                        = "Spark Kubernetes Cluster Launch Template"
+      Cluster                                                     = "spark_k8s_cluster"
+      "Node Group"                                                = "spark_k8s_cluster_node_group"
       "kubernetes.io/cluster/${aws_eks_cluster.k8s_cluster.name}" = "shared"
     },
     var.global_tags
@@ -120,7 +120,7 @@ resource "aws_eks_node_group" "eks_node_group" {
     aws_iam_role_policy_attachment.managed_ecr_readonly_policy_to_node_pool_role_attachment
   ]
 
- # lifecycle {
- #   create_before_destroy = true
- # }
+  # lifecycle {
+  #   create_before_destroy = true
+  # }
 }

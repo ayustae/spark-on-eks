@@ -20,7 +20,7 @@ resource "aws_eks_cluster" "k8s_cluster" {
   vpc_config {
     endpoint_private_access = true
     endpoint_public_access  = true
-    security_group_ids      = [aws_security_group.eks_cluster_sg.id, aws_security_group.eks_nodes_sg.id]
+    security_group_ids      = [aws_security_group.eks_cluster_sg.id]
     subnet_ids              = flatten([var.public_subnets_ids, var.private_subnets_ids])
   }
 
@@ -36,4 +36,9 @@ resource "aws_eks_cluster" "k8s_cluster" {
   )
 
   depends_on = [aws_iam_role_policy_attachment.managed_eks_policy_to_eks_role_attachment]
+}
+
+# Create an OpenID Connect provider for the cluster
+data "tls_certificate" "k8s_cluster_tls_certificate" {
+  url = aws_eks_cluster.k8s_cluster.identity[0].oidc[0].issuer
 }

@@ -9,3 +9,7 @@ output "private_subnets_ids" {
 output "public_subnets_ids" {
   value = [for subnet in aws_subnet.public_subnets : subnet.id]
 }
+
+output "private_subnets_group" {
+  value = aws_db_subnet_group.private_subnets_group.name
+}
