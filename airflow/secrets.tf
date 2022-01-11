@@ -61,3 +61,21 @@ resource "aws_secretsmanager_secret_version" "webserver_secret_key" {
   secret_id     = aws_secretsmanager_secret.webserver_secret_key.id
   secret_string = data.external.create_webserver_secret_key.result.flask_secret_key
 }
+
+# Create a secret with the AWS connection
+resource "aws_secretsmanager_secret" "aws_connection" {
+  name = "airflow/connections/aws_s3"
+
+  tags = merge(
+    {
+      Name     = "Airflow Connection to AWS"
+      Variable = "AIRFLOW_CONN_AWS_S3"
+    },
+    var.global_tags
+  )
+}
+
+resource "aws_secretsmanager_secret_version" "aws_connection" {
+  secret_id     = aws_secretsmanager_secret.aws_connection.id
+  secret_string = "aws://"
+}
