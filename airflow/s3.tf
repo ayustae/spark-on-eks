@@ -1,6 +1,6 @@
 # Create an S3 bucket for the Airflow logs
 resource "aws_s3_bucket" "airflow_logs" {
-  bucket = "sdg-tht-airflow-logs"
+  bucket = "tht-airflow-logs"
 
   lifecycle_rule {
     id      = "recycle-logs"
@@ -26,7 +26,7 @@ resource "aws_s3_bucket" "airflow_logs" {
 
 # Create an S3 bucket for the Airflow dags
 resource "aws_s3_bucket" "airflow_dags" {
-  bucket = "sdg-tht-airflow-dags"
+  bucket = "tht-airflow-dags"
 
   tags = merge(
     {

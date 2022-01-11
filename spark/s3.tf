@@ -1,6 +1,6 @@
 # Create an S3 bucket for the Spark job
 resource "aws_s3_bucket" "spark_bucket" {
-  bucket = "sdg-tht-spark"
+  bucket = "tht-spark"
 
   tags = merge(
     {
