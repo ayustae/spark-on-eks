@@ -1,3 +1,6 @@
+# Get the account id
+data "aws_caller_identity" "caller_id" {}
+
 # Create a plicy to grant access to the S3 buckets
 data "aws_iam_policy_document" "airflow_s3_policy" {
   statement {
@@ -27,11 +30,12 @@ data "aws_iam_policy_document" "airflow_secretsmanager_policy_document" {
       "secretsmanager:DescribeSecret",
       "secretsmanager:ListSecretVersionId"
     ]
-    resources = [
-      aws_secretsmanager_secret.webserver_secret_key.arn,
-      aws_secretsmanager_secret.fernet_key.arn,
-      aws_secretsmanager_secret.db_conn_string.arn
-    ]
+    resources = "arn:aws:secretsmanager:${var.region}:${data.aws_caller_identity.caller_id.account_id}:secret:airflow/*"
+#    resources = [
+#      aws_secretsmanager_secret.webserver_secret_key.arn,
+#      aws_secretsmanager_secret.fernet_key.arn,
+#      aws_secretsmanager_secret.db_conn_string.arn
+#    ]
   }
 
   statement {
@@ -44,7 +48,7 @@ data "aws_iam_policy_document" "airflow_secretsmanager_policy_document" {
 }
 
 resource "aws_iam_policy" "airflow_secretsmanager_policy" {
-  name        = "k8s-spark_access-secret-manager"
+  name        = "AirflowSecretsManagerPolicy"
   description = "Allow the EKS Cluster access some secrets stored at Secret Manager."
   policy      = data.aws_iam_policy_document.airflow_secretsmanager_policy_document.json
 
